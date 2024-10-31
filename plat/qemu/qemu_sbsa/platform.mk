@@ -31,6 +31,13 @@ endif
 
 BL2_SOURCES		+=	$(LIBFDT_SRCS)
 
+ifeq (${SPMD_SPM_AT_SEL2}, 1)
+FDT_SOURCES		+=  ${PLAT_QEMU_PATH}/fdts/${PLAT}_tb_fw_config.dts
+BL32_CONFIG_DTS		:=	${PLAT_QEMU_PATH}/fdts/${PLAT}_spmc_sp_manifest.dts
+FDT_SOURCES		+=	${BL32_CONFIG_DTS}
+QEMU_SBSA_TOS_FW_CONFIG		:=	${BUILD_PLAT}/fdts/$(notdir $(basename ${BL32_CONFIG_DTS})).dtb
+endif
+
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
@@ -46,6 +53,22 @@ BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 ifeq (${SPM_MM},1)
 	BL31_SOURCES		+=	${PLAT_QEMU_COMMON_PATH}/qemu_spm.c
+endif
+
+ifeq (${SPMD_SPM_AT_SEL2}, 1)
+BL1_SOURCES += plat/common/plat_spmd_manifest.c
+
+BL2_SOURCES += ${PLAT_QEMU_COMMON_PATH}/qemu_io_storage.c \
+				common/fdt_fixup.c \
+				common/fdt_wrappers.c \
+				common/uuid.c
+
+BL31_SOURCES += plat/common/plat_spmd_manifest.c
+
+TOS_FW_CONFIG		:=	${BUILD_PLAT}/fdts/qemu_sbsa_spmc_sp_manifest.dtb
+$(eval $(call TOOL_ADD_PAYLOAD,${TOS_FW_CONFIG},--tos-fw-config,${TOS_FW_CONFIG}))
+TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/qemu_sbsa_tb_fw_config.dtb
+$(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 endif
 
 # Use known base for UEFI if not given from command line
