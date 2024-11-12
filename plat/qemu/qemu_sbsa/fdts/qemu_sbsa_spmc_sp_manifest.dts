@@ -36,6 +36,14 @@
        vcpu_count = <1>;
        mem_size = <0x0 0x300000>;
      };
+     /* Example Service */
+     vm2 {
+       is_ffa_partition;
+       load_address = <0x0 0x20400000>;
+       debug_name = "therm";
+       vcpu_count = <1>;
+       mem_size = <0x400000>;
+     };
    };
 
    cpus {
@@ -81,6 +89,16 @@
   memory@4 {
 		device_type = "device-memory"; /* FLASH */
 		reg = <0x0 0x01000000 0x0 0x000C0000>;
+	};
+
+  memory@5 {
+		device_type = "device-memory"; /* UART */
+		reg = <0x0 0x60030000 0x0 0x00001000>;
+	};
+
+  memory@6 {
+		device_type = "device-memory"; /* SP1 Test Carve-out */
+		reg = <0x00000100 0x1FFFE000 0x0 0x00001000>;
 	};
 
    memory@2 {
